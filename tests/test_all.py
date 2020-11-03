@@ -2,7 +2,8 @@ import numpy as np
 from rapport import *
 
 def test_mnist_length():
-    mnist_data, mnist_target = np.random.randint((100,50)), np.random.randint((100,50))
+    mnist_data = np.zeros((100,50))
+    mnist_target =  np.zeros((100,50))
     dataset_length, target_length = data_length(mnist_data, mnist_target)
     assert dataset_length == 100
     assert target_length == 100
