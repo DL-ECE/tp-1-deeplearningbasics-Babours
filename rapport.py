@@ -93,7 +93,7 @@ plot_one_image(X_test, y_test , 250)
 
 # It's important to normalize the data before feeding it into the neural network
 def normalize_data(dataset: np.array) -> np.array:
-    normalized_dataset =  (dataset-np.min(dataset))/(np.max(dataset) - np.min(dataset))
+    normalized_dataset =  (dataset-np.min(dataset))/255
     return normalized_dataset
 
 """It's also important to find a good representation of the target.
@@ -128,7 +128,7 @@ def sigmoid(M: np.array) -> np.array:
 
 def d_sigmoid(M: np.array)-> np.array:
     """Compute the derivative of the sigmoid""" 
-    der_sig = sigmoid(M)/(1-sigmoid(M))
+    der_sig = sigmoid(M)*(1-sigmoid(M))
     return der_sig
 
 def softmax(X: np.array)-> np.array:
