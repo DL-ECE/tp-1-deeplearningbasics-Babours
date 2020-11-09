@@ -301,11 +301,11 @@ It's on 12 points because there is a lot of functions to fill but also we want t
 To have all the point your neural network needs to have a Test accuracy > 92 % !!
 """
 
-minibatch_size = 5 
-nepoch = 10
+minibatch_size = 10
+nepoch = 40
 learning_rate = 0.01
 
-ffnn = FFNN(config=[784, 3, 3, 10], minibatch_size=minibatch_size, learning_rate=learning_rate)
+ffnn = FFNN(config=[784, 14, 14, 10], minibatch_size=minibatch_size, learning_rate=learning_rate)
 
 assert X_train.shape[0] % minibatch_size == 0
 assert X_test.shape[0] % minibatch_size == 0
@@ -340,9 +340,10 @@ true_target = np.argmax(y_true[index_to_plot,:])
 
 # loop arround the demo test set and try to find a miss prediction
 for i in range(0, nsample):   
-    prediction = None # Todo
-    true_target = None # Todo
+    prediction = np.argmax(y_demo[index_to_plot]) # Todo
+    true_target = np.argmax(y_true[index_to_plot]) # Todo
     if prediction != true_target:
+      print('False!')
       pass
         # TODO
 
@@ -360,5 +361,11 @@ Also explain how the neural network behave when changing them ?
 ## Open analysis answer
 
 TODO
-"""
 
+Pour atteindre 92% de précision, j'ai changé nottament les paramètres de la config et de nepoch.
+  J'ai changé le premier car le nombre de neuronnes cachés ne permettait pas une assez grande précision, je l'ai donc augmenté petit à petit afin de me rapprocher assez du résultat.
+  J'ai également changé en parallèle le nepoch soit le nombre de fois que l'on fait tourner l'algorithme pour permettre au programme d'avoir plus de "temps" pour s'améliorer.
+  Je ne me souviens plus quelle était la valeur d'origine de minibatch_size, mais je trouve qu'à 10 on permet au test d'avoir suffisamment de données tout en laissant une grande marge pour les tests à venir.
+  Enfin suite à des augmentations successives de nepoch et de config je suis arrivé à 0.925 de précision avec 14 neuronnes pour chaque couche et 40 exécutions.
+  Je pense qu'augmenter encore d'avantage ces deux valeurs devrait faire augmenter l'algorithme mais ce dernier mettrait alors plus de temps à tourner.
+"""
