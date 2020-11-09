@@ -172,7 +172,6 @@ class FFNN:
         self.nlayers = len(config)
         self.minibatch_size = minibatch_size
         self.learning_rate = learning_rate
-        self.config = config
         
         input_data = Layer()
         # TODO: initialize the Z matrix with the a matrix containing only zeros
@@ -186,7 +185,7 @@ class FFNN:
             nlines_prev, ncols_prev = self.layers[i - 1].Z.shape
             # TODO: initilize the weight matrix W in the layer with a random normal distribution
             # its shape should be (ncols_prev, nnodes)
-            layer.W = np.random.normal(ncols_prev, nnodes)
+            layer.W = np.random.randn(ncols_prev, nnodes)
             # TODO: initilize the matrix Z in the layer with a matrix containing only zeros
             # its shape should be (nlines_prev, nnodes)
             layer.Z = np.zeros((nlines_prev, nnodes))
@@ -199,20 +198,20 @@ class FFNN:
     def one_step_forward(self, signal: np.array, cur_layer: Layer)-> np.array:
         # Compute the F and Z matrix for the current layer and return Z
         # TODO: Compute the dot product betzeen the signal and the current layer W matrix
-        S = np.dot(signal, cur_layer.W)
+        S = np.dot(signal,cur_layer.W)
         # TODO: Compute the F matrix of the current layer
         cur_layer.F = d_sigmoid(S).T
         # Compute the activation od the current layer
-        cur_layer.Z = cur_layer.activation
+        cur_layer.Z = cur_layer.activation(S)
         return cur_layer.Z
        
     def forward_pass(self, input_data: np.array)-> np.array:
         # TODO: perform the whole forward pass using the on_step_forward function
         self.layers[0].Z = input_data
-        for i in range(1,len(self.config)):
+        for i in range(1, self.nlayers):
           signal = self.layers[i-1].Z
           cur_layer = self.layers[i]
-          _ = self.one_step_forward(signal, cur_layer)
+          self.layers[i].Z = self.one_step_forward(signal, cur_layer)
         return self.layers[-1].Z
     
     def one_step_backward(self, prev_layer: Layer, cur_layer: Layer)-> Layer:
@@ -225,31 +224,33 @@ class FFNN:
         self.layers[-1].D = D_out.T
         # TODO: Compute the D matrix for all the layers (excluding the first one which corresponds to the input itself)
         # (you should only use self.layers[1:])
-        for i in range((self.nlayers)-1,1):
-          cur_layer = self.layers[i]
-          prev_layer = self.layers[i-1]
-          _ = self.one_step_backward(prev_layer,cur_layer)
+        for i in range(len(self.layers[1:])-1, 0, -1 ):
+          cur_layer = self.layers[i+1]
+          prev_layer = self.layers[i]
+          self.layers[i] = self.one_step_backward(prev_layer,cur_layer)
     
     def update_weights(self, cur_layer: Layer, next_layer: Layer)-> Layer:
         # TODO: Update the W matrix of the next_layer using the current_layer and the learning rate
         # and return the next_layer
-        next_layer.W = cur_layer.W - self.learning_rate*((np.dot(next_layer.D, cur_layer.Z)).T)
+        next_layer.W = next_layer.W - self.learning_rate*((np.dot(next_layer.D, cur_layer.Z)).T)
         return next_layer
     
     def update_all_weights(self)-> None:
         # TODO: Update all W matrix using the update_weights function
-        for i in range(0, (self.nlayers)-1):
-          cur_layer = self.update_weights(cur_layer[i], next_layer[i])
+        for i in range(0, len(self.layers)-1):
+          self.layers[i+1] = self.update_weights(cur_layer[i], next_layer[i])
         
     def get_error(self, y_pred: np.array, y_batch: np.array)-> float:
         # TODO: return the accuracy on the predictions
         # the accuracy should be in the [0.0, 1.0] range
         sum = 0
         for i in range(0,len(y_pred)):
-          if argmax(y_pred[i] == argmax(y_batch[i])):
-            sum += sum
+          if (np.argmax(y_pred[i]) == np.argmax(y_batch[i])):
+            sum += 1
 
-        return sum
+        err = (sum / len(y_pred))
+
+        return err
     
     def get_test_error(self, X: np.array, y: np.array)-> float:
         # TODO: Compute the accuracy using the get_error function
@@ -259,7 +260,7 @@ class FFNN:
             X_batch = X[i,:,:].reshape(self.minibatch_size, -1)
             y_batch = y[i,:,:].reshape(self.minibatch_size, -1)           
             # TODO: get y_pred using the forward pass
-            error_sum += forward_pass(y_pred)
+            error_sum += self.get_error(self.forward_pass(X_batch), y_batch)
         return error_sum / nbatch
             
         
@@ -335,6 +336,7 @@ for i in range(0, nsample):
     prediction = None # Todo
     true_target = None # Todo
     if prediction != true_target:
+      pass
         # TODO
 
 """## Open analysis
