@@ -225,8 +225,8 @@ class FFNN:
         # TODO: Compute the D matrix for all the layers (excluding the first one which corresponds to the input itself)
         # (you should only use self.layers[1:])
         for i in range(len(self.layers[1:])-1, 0, -1 ):
-          cur_layer = self.layers[i+1]
-          prev_layer = self.layers[i]
+          cur_layer = self.layers[i]
+          prev_layer = self.layers[i+1]
           self.layers[i] = self.one_step_backward(prev_layer,cur_layer)
     
     def update_weights(self, cur_layer: Layer, next_layer: Layer)-> Layer:
@@ -238,7 +238,9 @@ class FFNN:
     def update_all_weights(self)-> None:
         # TODO: Update all W matrix using the update_weights function
         for i in range(0, len(self.layers)-1):
-          self.layers[i+1] = self.update_weights(cur_layer[i], next_layer[i])
+          next_layer = self.layers[i+1]
+          cur_layer  = self.layers[i]
+          self.layers[i+1] = self.update_weights(cur_layer, next_layer)
         
     def get_error(self, y_pred: np.array, y_batch: np.array)-> float:
         # TODO: return the accuracy on the predictions
@@ -248,9 +250,9 @@ class FFNN:
           if (np.argmax(y_pred[i]) == np.argmax(y_batch[i])):
             sum += 1
 
-        err = (sum / len(y_pred))
+        my_error = (sum / len(y_pred))
 
-        return err
+        return my_error
     
     def get_test_error(self, X: np.array, y: np.array)-> float:
         # TODO: Compute the accuracy using the get_error function
@@ -307,6 +309,11 @@ ffnn = FFNN(config=[784, 3, 3, 10], minibatch_size=minibatch_size, learning_rate
 
 assert X_train.shape[0] % minibatch_size == 0
 assert X_test.shape[0] % minibatch_size == 0
+
+X_train = normalize_data(X_train)
+y_train = target_to_one_hot(y_train)
+X_test = normalize_data(X_test)
+y_test = target_to_one_hot(y_test)
 
 err = ffnn.train(nepoch, X_train, y_train, X_test, y_test)
 
